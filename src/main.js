@@ -44,11 +44,11 @@ function init() {
     }
 
     function newDot(pen, localFrom, localTo) {
-        var point = localFrom.localToGlobal(pen, 0);
+        var point = localFrom.localToLocal(pen, 0, localTo);
         var shape = new createjs.Shape();
         shape.graphics
             .beginFill('#FF00FF')
-            .arc(point.x + (-baseR + rotatorR) * 3, point.y - baseR - rotatorR, 3, 0, Math.PI*2, false);
+            .arc(point.x, point.y, 3, 0, Math.PI*2, false);
         return shape;
     }
 
@@ -56,10 +56,10 @@ function init() {
 
     //------------------------------PARAMS----------------------------------
     var baseR = 250;
-    var rotatorR = 100;
-    var pen = 70;
-    var angle = 1;
-    var alpha = 0.2;
+    var rotatorR = 74;
+    var pen = 50;
+    var angle = 10;
+    var angleBase = rotatorR * angle / baseR;
 
 
     //---------------------CREATE CANVAS AND STAGE--------------------------
@@ -75,9 +75,12 @@ function init() {
 
     //---------------------------INITIAL DRAW--------------------------------
     drawXY(stage);
+    var dotContainer = new createjs.Container;
+    dotContainer.cache(-baseR, -baseR, 2 * baseR, 2 * baseR)
     var baseContainer = newBase(baseR);
     var rotatorContainer = newRotator(rotatorR, baseR, pen);
     baseContainer.addChild(rotatorContainer);
+    stage.addChild(dotContainer);
     stage.update();
 
     //------------------------------TICKER----------------------------------
@@ -85,12 +88,18 @@ function init() {
     createjs.Ticker.timingMode = createjs.Ticker.RAF_SYNCHED;
     createjs.Ticker.on("tick", tick);
 
+    var i = 0;
     function tick() {
         //animation cycle
-        baseContainer.rotation -= angle;
-        // rotatorContainer.rotation += (1 + alpha) * angle;
-        // var dot = newDot(pen, rotatorContainer, baseContainer);
-        // stage.addChild(dot);
-        // stage.update();
+        i += 1;
+        if (i > 10) {
+            i = 0;
+            dotContainer.updateCache();
+        }
+        baseContainer.rotation -= angleBase;
+        rotatorContainer.rotation += angle + angleBase;
+        var dot = newDot(pen, rotatorContainer, dotContainer);
+        dotContainer.addChild(dot);
+        stage.update();
     }
 }
