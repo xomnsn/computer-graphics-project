@@ -58,7 +58,7 @@ function init() {
     var baseR = 250;
     var rotatorR = 74;
     var pen = 50;
-    var angle = 15;
+    var angle = 2;
     var angleBase = rotatorR * angle / baseR;
 
     //----------------------------EVENT LISTENERS---------------------------
@@ -101,18 +101,16 @@ function init() {
     function tick() {
         //animation cycle
         if (!createjs.Ticker.getPaused()) {
-            if (i > 100) {
-                console.log(dotContainer.getNumChildren());
-                i = 1;
-                var numOfCycles = 0;
-                for(var j = 0; j < 100; j++) {
-                    numOfCycles += 1;
-                    var thisChild = dotContainer.getChildAt(i);
+            if (i >= 300) {
+                console.log(i);
+                for(var j = 0; j < i; j++) {
+                    var thisChild = dotContainer.getChildAt(0);
                     cacheContainer.addChild(thisChild);
                 }
-                console.log("num of cycles " + numOfCycles);
                 dotContainer.removeAllChildren();
                 cacheContainer.updateCache();
+                i = 1;
+                // console.log(cacheContainer.getNumChildren());
             }
             baseContainer.rotation -= angleBase;
             rotatorContainer.rotation += angle + angleBase;
