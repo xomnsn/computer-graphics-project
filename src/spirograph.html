@@ -11,6 +11,33 @@
 <body onload="init();">
 <div id="grid-container">
     <div id="controls-container">
+        <div class="input-container">
+            <label for="base-r">Base&nbspradius:</label>
+            <input class="input" id="base-r" name="settings" placeholder="Base radius" type="text">
+        </div>
+        <div class="input-container">
+            <label for="rotator-r">Rotator&nbspradius:</label>
+            <input class="input" id="rotator-r" name="settings" placeholder="Rotator radius" type="text">
+        </div>
+        <div class="input-container">
+            <label for="pen">Pen&nbspposition:</label>
+            <input class="input" id="pen" name="settings" placeholder="Pen position" type="text">
+        </div>
+        <div class="button" id="draw">Set new parameters</div>
+        <div class="input-container">
+            <label for="pen-color">Pen&nbspcolor:</label>
+            <input class="input" id="pen-color" name="settings" type="color" value="#ffaa91">
+        </div>
+        <div class="input-container">
+            <label for="dot-radius">Dot&nbspradius:</label>
+            <input class="input" id="dot-radius" name="settings" placeholder="Dot radius" type="text">
+        </div>
+        <div class="input-container">
+            <label for="dot-sparsity">Dot&nbspradius:</label>
+            <input type="range" id="dot-sparsity" name="settings" min="0.1" max="15">
+        </div>
+        <div class="button" id="direction">Clockwise</div>
+        <div class="button" id="hideGuides">Hide guides</div>
         <div class="button" id="pause">Play</div>
     </div>
     <div id="canvas-container">

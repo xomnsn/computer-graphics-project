@@ -1,5 +1,6 @@
 function init() {
 
+    //----------------------FUNCTIONS DRAW--------------------------
     function drawXY(container) {
         var XY = new createjs.Shape();
         XY.graphics
@@ -14,10 +15,10 @@ function init() {
 
     function newBase(r) {
         var container = new createjs.Container;
-        drawXY(container);
+        // drawXY(container);
         var shape = new createjs.Shape();
         shape.graphics
-            .beginStroke('#FF00FF')
+            .beginStroke('#aaa')
             .arc( 0, 0, r, 0, Math.PI*2, false);
         container.addChild(shape)
         stage.addChild(container);
@@ -27,42 +28,149 @@ function init() {
     function newRotator(rotatorR, baseR, pen) {
         var container = new createjs.Container;
         container.x = rotatorR - baseR;
-        drawXY(container);
+        // drawXY(container);
         var shape = new createjs.Shape();
         var dot = new createjs.Shape();
         shape.graphics
-            .beginStroke('#FF00FF')
+            .beginStroke('#aaa')
             .arc( 0, 0, rotatorR, 0, Math.PI*2, false)
             .moveTo(-rotatorR, 0)
             .lineTo(rotatorR, 0);
         dot.graphics
-            .beginFill('black')
+            .beginFill('#aaa')
             .arc(pen, 0, 3, 0, Math.PI*2, false);
         container.addChild(shape);
         container.addChild(dot);
         return container;
     }
 
-    function newDot(pen, localFrom, localTo) {
+    function newDot(pen, localFrom, localTo, color, radius) {
         var point = localFrom.localToLocal(pen, 0, localTo);
         var shape = new createjs.Shape();
         shape.graphics
-            .beginFill('#FF00FF')
-            .arc(point.x, point.y, 3, 0, Math.PI*2, false);
+            .beginFill(color)
+            .arc(point.x, point.y, radius, 0, Math.PI*2, false);
         return shape;
     }
 
 
+    //----------------------FUNCTIONS PARAMS CONTROLS--------------------------
+
+    function checkIntInput(input) {
+        var isNum = /^\d*\.?\d+$/.test(input);
+        return isNum;
+    }
+
+    function setBaseR() {
+        var input = $(this).val();
+        var isNum = checkIntInput(input);
+        if (!isNum)
+            alert("Invalid input");
+        else
+            newBaseR = parseFloat(input);
+    }
+
+    function setRotatorR() {
+        var input = $(this).val();
+        var isNum = checkIntInput(input);
+        if (!isNum)
+            alert("Invalid input");
+        else
+            newRotatorR = parseFloat(input);
+    }
+
+    function setPen() {
+        var input = $(this).val();
+        var isNum = checkIntInput(input);
+        if (!isNum)
+            alert("Invalid input");
+        else
+            newPen = parseFloat(input);
+    }
+
+    function drawNewStage() {
+        if (!isNaN(newBaseR) || !isNaN(newRotatorR) || !isNaN(newPen)) {
+            var stageChildren = stage.children;
+            stageChildren.forEach(myFunction);
+            function myFunction(thisChild) {
+                if (thisChild === baseContainer)
+                    stage.removeChild(thisChild);
+            }
+            stage.update();
+            baseContainer = newBase(newBaseR);
+            rotatorContainer = newRotator(newRotatorR, newBaseR, newPen);
+            baseContainer.addChild(rotatorContainer);
+            stage.addChild(baseContainer);
+            stage.update();
+            defaultDrawing = false;
+        }
+        else {
+            alert("Something is missing");
+        }
+    }
+
+    function changePenColor() {
+        color = $(this).val();
+    }
+
+    function changeDotRadius() {
+        var input = $(this).val();
+        var isNum = checkIntInput(input);
+        if (!isNum)
+            alert("Invalid input");
+        else
+            dotRadius = parseFloat(input);
+    }
+
+    function changeDotSparsity() {
+        angle = parseFloat($(this).val());
+        if (defaultDrawing) {
+            angleBase = rotatorR * angle / baseR;
+        }
+        else {
+            angleBase = newRotatorR * angle / newBaseR;
+        }
+    }
+
+    function changeRotatorsDirection() {
+        rotatorDirectionCounterclockwise = !rotatorDirectionCounterclockwise;
+        $(this).text(rotatorDirectionCounterclockwise ? "Counterclockwise" : "Clockwise");
+    }
+
+    function toggleGuidesVisibility() {
+        baseContainer.visible = !baseContainer.visible;
+        $(this).text(baseContainer.visible ? "Hide guides" : "Show guides");
+    }
 
     //------------------------------PARAMS----------------------------------
+    //default
     var baseR = 250;
     var rotatorR = 74;
     var pen = 50;
-    var angle = 2;
+
+    //set new params
+    var newBaseR, newRotatorR, newPen;
+    var defaultDrawing = true;
+
+    //changeable
+    var angle = 1.5;
     var angleBase = rotatorR * angle / baseR;
+    var color ="#ffaa91";
+    var dotRadius = 2.5;
+    var rotatorDirectionCounterclockwise = false;
 
     //----------------------------EVENT LISTENERS---------------------------
-    $( "#pause" ).on( "click", togglePause);
+    $("#base-r").on("change", setBaseR);
+    $("#rotator-r").on("change", setRotatorR);
+    $("#pen").on("change", setPen);
+    $('#draw' ).on( "click", drawNewStage);
+    $("#pen-color").on("change", changePenColor);
+    $("#dot-radius").on("change", changeDotRadius);
+    $("#dot-sparsity").on("change", changeDotSparsity);
+    $("#direction" ).on( "click", changeRotatorsDirection);
+    $("#hideGuides").on("click", toggleGuidesVisibility);
+    $("#pause" ).on( "click", togglePause);
+
 
 
     //---------------------CREATE CANVAS AND STAGE--------------------------
@@ -79,13 +187,14 @@ function init() {
     //*****************************MAIN*************************************
 
     //---------------------------INITIAL DRAW--------------------------------
-    drawXY(stage);
+    // drawXY(stage);
     var dotContainer = new createjs.Container;
     var cacheContainer = new createjs.Container;
-    cacheContainer.cache(-baseR, -baseR, 2 * baseR, 2 * baseR);
     var baseContainer = newBase(baseR);
     var rotatorContainer = newRotator(rotatorR, baseR, pen);
+    cacheContainer.cache(-canvas.width / 2, -canvas.width / 2, canvas.width, canvas.width);
     baseContainer.addChild(rotatorContainer);
+    stage.addChild(baseContainer);
     stage.addChild(dotContainer);
     stage.addChild(cacheContainer);
     stage.update();
@@ -102,7 +211,6 @@ function init() {
         //animation cycle
         if (!createjs.Ticker.getPaused()) {
             if (i >= 300) {
-                console.log(i);
                 for(var j = 0; j < i; j++) {
                     var thisChild = dotContainer.getChildAt(0);
                     cacheContainer.addChild(thisChild);
@@ -110,11 +218,19 @@ function init() {
                 dotContainer.removeAllChildren();
                 cacheContainer.updateCache();
                 i = 1;
-                // console.log(cacheContainer.getNumChildren());
             }
-            baseContainer.rotation -= angleBase;
+            if (rotatorDirectionCounterclockwise)
+                baseContainer.rotation -= angleBase;
+            else
+                baseContainer.rotation += angleBase;
+
             rotatorContainer.rotation += angle + angleBase;
-            var dot = newDot(pen, rotatorContainer, dotContainer);
+            if (defaultDrawing) {
+                var dot = newDot(pen, rotatorContainer, dotContainer, color, dotRadius);
+            }
+            else {
+                var dot = newDot(newPen, rotatorContainer, dotContainer, color, dotRadius);
+            }
             dotContainer.addChild(dot);
             i += 1;
         }
@@ -127,56 +243,4 @@ function init() {
         createjs.Ticker.setPaused(paused);
         $(this).text(paused ? "Play" : "Pause");
     }
-
 }
-//
-//
-//
-//
-// var stage, pauseCircle, goCircle, output;
-//
-// function init() {
-//     stage = new createjs.Stage("demoCanvas");
-//
-//     pauseCircle = new createjs.Shape();
-//     pauseCircle.graphics.beginFill("red").drawCircle(0, 0, 40);
-//     pauseCircle.y = 50;
-//     stage.addChild(pauseCircle);
-//
-//     goCircle = new createjs.Shape();
-//     goCircle.graphics.beginFill("green").drawCircle(0, 0, 40);
-//     goCircle.y = 150;
-//     stage.addChild(goCircle);
-//
-//     // and register our main listener
-//     createjs.Ticker.addEventListener("tick", tick);
-//
-//     // UI code:
-//     output = stage.addChild(new createjs.Text("", "14px monospace", "#000"));
-//     output.lineHeight = 15;
-//     output.textBaseline = "top";
-//     output.x = 10;
-//     output.y = stage.canvas.height-output.lineHeight*3-10;
-// }
-//
-// function tick(event) {
-//     goCircle.x += 10;
-//     if (goCircle.x > stage.canvas.width) { goCircle.x = 0; }
-//
-//     if (!createjs.Ticker.getPaused()) {
-//         pauseCircle.x += 10;
-//         if (pauseCircle.x > stage.canvas.width) { pauseCircle.x = 0; }
-//     }
-//
-//     output.text = "getPaused()    = "+createjs.Ticker.getPaused()+"\n"+
-//         "getTime(true)  = "+createjs.Ticker.getTime(true)+"\n"+
-//         "getTime(false) = "+createjs.Ticker.getTime(false);
-//
-//     stage.update(event); // important!!
-// }
-//
-// function togglePause() {
-//     var paused = !createjs.Ticker.getPaused();
-//     createjs.Ticker.setPaused(paused);
-//     document.getElementById("pauseBtn").value = paused ? "unpause" : "pause";
-// }
