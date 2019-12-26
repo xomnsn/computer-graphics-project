@@ -6,6 +6,7 @@
 
 body {
     font-family: Montserrat, serif;
+    font-size: 18px;
 }
 
 #grid-container {
@@ -23,6 +24,8 @@ body {
 }
 
 .button {
+    color: #454545;
+    font-family: Montserrat, serif;
     height: 40px;
     margin: 30px 30px 0 30px;
     background: rgba(255, 170, 145, 0.27);
@@ -45,6 +48,7 @@ label {
 }
 
 input[type=text] {
+    font-family: Montserrat, serif;
     width: 100%;
     margin-left: 20px;
     height: 40px;
